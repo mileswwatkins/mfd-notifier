@@ -4,7 +4,7 @@ on:
       - main
   # Run at the end of each day (Pacific Time)
   schedule:
-    - cron: "0 2 * * *"
+    - cron: '0 2 * * *'
 
 jobs:
   query:
@@ -20,8 +20,7 @@ jobs:
         with:
           branch: main
           workflow_conclusion: success
-          # Only use workflows that have an artifact with this step's
-          # `name` value
+          # Only use workflows that have an artifact with this step's `name` value
           search_artifacts: true
           name: previous-value.txt
       - name: Get website text
@@ -33,7 +32,7 @@ jobs:
           diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Notify if difference found
-        if: steps.check_for_changes.outputs.diff_message != ""
+        if: steps.check_for_changes.outputs.diff_message != ''
         uses: licenseware/send-email-notification@v1
         with:
           api-key: ${{ secrets.SENDGRID_API_KEY }}
