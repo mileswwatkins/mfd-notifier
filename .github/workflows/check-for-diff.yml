@@ -11,10 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install library dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: baptiste0928/cargo-install@v3
         with:
-          packages: htmlq
-          version: 0.4
+          crate: htmlq
       - name: Get previous value
         uses: dawidd6/action-download-artifact@v6
         with:
