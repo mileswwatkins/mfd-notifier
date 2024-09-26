@@ -22,6 +22,9 @@ jobs:
           # Only use workflows that have an artifact with this step's `name` value
           search_artifacts: true
           name: previous-value.txt
+          if_no_artifact_found: ignore
+      - name: Create artifact fallback
+        run: echo "" >> previous-value.txt
       - name: Get website text
         run: curl --silent https://myfrienddereks.com | htmlq --text > current-value.txt
       - name: Check for changes
