@@ -1,0 +1,50 @@
+on:
+  push:
+    branches:
+      - main
+  # Run at the end of each day (Pacific Time)
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install library dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: htmlq
+          version: 0.4
+      - name: Get previous value
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          branch: main
+          workflow_conclusion: success
+          # Only use workflows that have an artifact with this step's
+          # `name` value
+          search_artifacts: true
+          name: previous-value.txt
+      - name: Get website text
+        run: curl --silent https://myfrienddereks.com | htmlq --text > current-value.txt
+      - name: Check for changes
+        id: check_for_changes
+        run: |
+          echo "diff_message<<EOF" >> $GITHUB_OUTPUT
+          diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Notify if difference found
+        if: steps.check_for_changes.outputs.diff_message != ""
+        uses: licenseware/send-email-notification@v1
+        with:
+          api-key: ${{ secrets.SENDGRID_API_KEY }}
+          subject: "My Friend Derek's update detected"
+          from-email: ${{ secrets.FROM_EMAIL }}
+          to-email: ${{ secrets.TO_EMAIL }}
+          markdown-body: "Updates detected on https://myfrienddereks.com"
+      # Save this step for the end, in case the others don't
+      # complete successfully
+      - name: Cache website text
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-value.txt
+          path: ./current-value.txt
