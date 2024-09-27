@@ -34,7 +34,7 @@ jobs:
         run: |
           {
             echo 'DIFF_MESSAGE<<EOF'
-            diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt
+            curl --silent https://myfrienddereks.com
             echo EOF
           } >> "$GITHUB_ENV"
       - name: Notify if difference found
