@@ -32,11 +32,9 @@ jobs:
         # Save a multi-line string to the GitHub Actions environment
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
         run: |
-          {
-            echo 'DIFF_MESSAGE<<EOF'
-            curl --silent https://myfrienddereks.com
-            echo EOF
-          } >> "$GITHUB_ENV"
+          echo "DIFF_MESSAGE<<EOF" >> $GITHUB_OUTPUT
+          diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Notify if difference found
         if: steps.check_for_changes.outputs.DIFF_MESSAGE != ''
         uses: licenseware/send-email-notification@v1
