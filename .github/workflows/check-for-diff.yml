@@ -29,12 +29,16 @@ jobs:
         run: curl --silent https://myfrienddereks.com | htmlq --text > current-value.txt
       - name: Check for changes
         id: check_for_changes
+        # Save a multi-line string to the GitHub Actions environment
+        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
         run: |
-          echo "diff_message<<EOF" >> $GITHUB_OUTPUT
-          diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo 'DIFF_MESSAGE<<EOF'
+            diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt
+            echo EOF
+          } >> "$GITHUB_ENV"
       - name: Notify if difference found
-        if: steps.check_for_changes.outputs.diff_message != ''
+        if: steps.check_for_changes.outputs.DIFF_MESSAGE != ''
         uses: licenseware/send-email-notification@v1
         with:
           api-key: ${{ secrets.SENDGRID_API_KEY }}
