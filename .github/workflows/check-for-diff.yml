@@ -31,10 +31,14 @@ jobs:
         id: check_for_changes
         # Save a multi-line string to the GitHub Actions environment
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
+        # https://stackoverflow.com/a/74282465
         run: |
-          echo "DIFF_MESSAGE<<EOF" >> $GITHUB_OUTPUT
-          diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          DELIMITER="$(openssl rand -hex 8)"
+          {
+            echo "DIFF_MESSAGE<<${DELIMITER}"
+            diff --ignore-space-change --ignore-blank-lines --old-line-format="" --unchanged-line-format="" previous-value.txt current-value.txt | sed -e '$a\'
+            echo "${DELIMITER}"
+          } >> $GITHUB_OUTPUT
       - name: Notify if difference found
         if: steps.check_for_changes.outputs.DIFF_MESSAGE != ''
         uses: licenseware/send-email-notification@v1
